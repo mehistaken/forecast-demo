@@ -9,7 +9,9 @@ table {
   border-collapse: collapse;
 }
 table th, table td {
-  width: 120px;
   border: 1px solid black;
   padding: 2px 4px;
+}
+table td[colspan] {
+  padding: 0;
 }
