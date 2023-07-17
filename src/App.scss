@@ -1,17 +1,36 @@
 .App {
-  padding: 2rem 0;
+  padding: 2rem;
+  margin: 0 auto;
   text-align: center;
+  width: 100%;
+  max-width: 1280px;
 }
 
 table {
+  width: 100%;
   margin: 0 auto;
   border-spacing: 0;
   border-collapse: collapse;
 
   th, td {
-    // width: 150px;
-    border: 1px solid black;
-    padding: 2px 4px;
+    width: calc(100% / 7);
+    border: 1px solid #16161d;
+    padding: 4px 4px 8px;
+  }
+
+  th {
+    .icon {
+      position: relative;
+      margin-top: 8px;
+      font-weight: 400;
+    }
+    
+    i {
+      display: inline-block;
+      margin-bottom: 4px;
+      font-size: 50px;
+      color: #ccc;
+    }
   }
 
   td[colspan] {

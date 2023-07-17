@@ -1,5 +1,7 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import './fa/fontawesome.min.css';
+import './fa/solid.min.css';
+import { useRef, useEffect, useState } from 'react';
 import ReactEcharts from "echarts-for-react"; 
 
 function App() {
@@ -18,16 +20,49 @@ function App() {
   const [rowData, setRowData] = useState("");
   const [options, setOptions] = useState({});
 
+  const chartRef = useRef();
+
   const ls = window.localStorage;
   const tmpUnit = '°C';
   const dayOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const wcIcon = {
+    0: [<i class="fas fa-sun"></i>, 'Clear sky'],
+
+    1: [<i class="fas fa-sun-cloud"></i>, 'Mainly clear'],
+    2: [<i class="fas fa-clouds-sun"></i>, 'Partly cloudy'],
+    3: [<i class="fas fa-clouds"></i>, 'Overcast'],
+
+    45: [<i class="fas fa-fog"></i>, 'Fog'],
+    48: [<i class="fas fa-fog"></i>, 'Fog'],
+
+    51: [<i class="fas fa-cloud-drizzle"></i>, 'Light drizzle'],
+    53: [<i class="fas fa-cloud-drizzle"></i>, 'Moderate drizzle'],
+    55: [<i class="fas fa-cloud-drizzle"></i>, 'Heavy drizzle'],
+
+    61: [<i class="fas fa-cloud-showers"></i>, 'Light rain'],
+    63: [<i class="fas fa-cloud-showers"></i>, 'Moderate rain'],
+    65: [<i class="fas fa-cloud-showers"></i>, 'Heavy rain'],
+
+    71: [<i class="fas fa-snowflake"></i>, 'Light snow'],
+    73: [<i class="fas fa-snowflake"></i>, 'Moderate snow'],
+    75: [<i class="fas fa-snowflake"></i>, 'Heavy snow'],
+
+    80: [<i class="fas fa-cloud-sun-rain"></i>, 'Light showers'],
+    81: [<i class="fas fa-cloud-sun-rain"></i>, 'Moderate showers'],
+    82: [<i class="fas fa-cloud-sun-rain"></i>, 'Heavy showers'],
+
+    95: [<i class="fas fa-thunderstorm"></i>, 'Thunderstorm'],
+    96: [<i class="fas fa-thunderstorm"></i>, 'Thunderstorm'],
+    99: [<i class="fas fa-thunderstorm"></i>, 'Thunderstorm']
+  }
 
   const baseOptions = {
     grid: {
       left: '0',
       right: '0',
-      bottom: '0',
-      top: '15px',
+      bottom: '20px',
+      top: '20px',
       containLabel: true
     }    
   };
@@ -39,6 +74,10 @@ function App() {
     } else {
       setCurrentCity("Toronto");
     }
+
+    window.addEventListener('resize', function() {
+      chartRef.current?.resize();
+    });
   }, []);
 
   // fetch data on city change
@@ -51,7 +90,7 @@ function App() {
       '?latitude='  + cityGeo[currentCity].lat +
       '&longitude=' + cityGeo[currentCity].lng + 
       (forecastDays !== 7 ? '&forecast_days=' + forecastDays : '') +
-      '&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_mean&timezone=auto';
+      '&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_mean&timezone=auto';
 
     fetch(fetchURL).then(res => {
       return res.json();
@@ -69,7 +108,12 @@ function App() {
 
         // tabular display
         for (let i = 0; i < forecastDays; i++) {
-          header.push(<th key={i}>{data.daily.time[i]} ({dayOfWeek[new Date(data.daily.time[i]).getDay()].substr(0, 3)})</th>);
+          let today = new Date(data.daily.time[i]);
+          header.push(<th key={i}>
+            {i === 0 ? 'Today ' : (i === 1 ? 'Tomorrow ' : month[today.getMonth()].substring(0,3) + ' ' + today.getDate() + ' ')} 
+             ({dayOfWeek[new Date(data.daily.time[i]).getDay()].substring(0, 3)})<br />
+            <div class="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
+            </th>);
           headerLabel.push(data.daily.time[i]);
           let dayMin = data.daily.temperature_2m_min[i],
             dayMax = data.daily.temperature_2m_max[i];
@@ -94,11 +138,7 @@ function App() {
         setOptions({
           xAxis: {
             show: false,
-            type: 'category',
-            // data: headerLabel,
-            // axisTick: {
-            //   show: false
-            // }
+            type: 'category'
           },
           yAxis: {
             scale: true,
@@ -129,6 +169,7 @@ function App() {
                 show: true,
                 position: 'insideTop',
                 offset: [0, 3],
+                fontSize: 16,
                 color: '#16161d',
                 formatter: '{c}' + tmpUnit
               },
@@ -142,13 +183,14 @@ function App() {
               label: {
                 show: true,
                 position: 'top',
+                fontSize: 16,
                 color: '#16161d',
                 formatter: function(param) {
                   return daysMaxLabel[param.dataIndex] + tmpUnit
                 }
               },
               data: daysMax
-            },
+            }
           ],
           ... baseOptions
         });
@@ -181,10 +223,10 @@ function App() {
           <tr>{rowHeader}</tr>
         </thead>
         <tbody>
-          <tr>{rowData}</tr>
+          {/* <tr>{rowData}</tr> */}
           <tr>
             <td colSpan={forecastDays}>
-              <ReactEcharts option={options} style={{ width: '100%', height: '600px' }} />
+              <ReactEcharts ref={chartRef} option={options} style={{ width: '100%', height: '400px' }} />
             </td>
           </tr>
         </tbody>
