@@ -24,6 +24,9 @@ This is a free form exercise for the candidates to demonstrate their abilities a
 - live webcam (as background)
 - map view of cities (radar images?)
 - for day view, make line chart continuous throughout and zoom to specific section on day change
+
 **functional**
+- show more forecast days (if available)
 - customizable data (show/hide different stats)
 - collect data on how often users click on individual day details (which ones? next day, coming weekend, etc) and optimize fetch query
+- cache query results (or should the API be responsible for that?)
