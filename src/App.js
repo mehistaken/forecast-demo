@@ -59,8 +59,9 @@ function App() {
     99: [<i className="fas fa-thunderstorm"></i>, 'Thunderstorm']
   }
 
-  // load default city if set
   useEffect(() => {
+
+    // load default city if set
     if (!!ls && ls.getItem('defaultCity') !== null) {
       setCurrentCity(ls.getItem('defaultCity'));
     } else {
@@ -80,6 +81,8 @@ function App() {
       let body = document.querySelector('body');
       body.setAttribute('city', currentCity);
     }
+
+    document.title = `${forecastDays}-day forecast for ${currentCity}`;
   }, [currentCity]);
 
   var fetchWeatherData = () => {
@@ -239,7 +242,13 @@ function App() {
   })
 
   const handleCityChange = e => {
-    if (e.target.value !== currentCity) setCurrentCity(e.target.value);
+    if (e.target.value !== currentCity) {
+      setCurrentCity(e.target.value);
+
+      // clear day selections
+      let sel = document.querySelectorAll('th.selected');
+      for (let c of sel) c.classList.remove('selected');
+    }
   }
 
   const dayClick = (e, i) => {
