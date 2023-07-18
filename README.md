@@ -7,7 +7,7 @@ Use one of the public APIs from the list below, build a dashboard to return the 
 APIs: https://github.com/public-apis/public-apis#weather
 Note: any API is fine
 
-## Cities:
+### Cities:
 - Toronto
 - Ottawa
 - Montreal
@@ -19,11 +19,11 @@ This is a free form exercise for the candidates to demonstrate their abilities a
 - Experiment with ways to make the UI more attractive (e.g. animation, responsiveness)
 
 
-## further development ideas
-- visual
-  - live webcam (as background)
-  - map view of cities (radar images?)
-  - for day view, make line chart continuous throughout and zoom to specific section on day change
-- functional
-  - customizable data (show/hide different stats)
-  - collect data on how often users click on individual day details (which ones? next day, coming weekend, etc) and optimize fetch query
+## Further development ideas
+**visual**
+- live webcam (as background)
+- map view of cities (radar images?)
+- for day view, make line chart continuous throughout and zoom to specific section on day change
+**functional**
+- customizable data (show/hide different stats)
+- collect data on how often users click on individual day details (which ones? next day, coming weekend, etc) and optimize fetch query

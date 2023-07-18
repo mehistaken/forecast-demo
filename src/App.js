@@ -1,7 +1,7 @@
 import './App.css';
 import './fa/fontawesome.min.css';
 import './fa/solid.min.css';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import ReactEcharts from "echarts-for-react"; 
 
 function App() {
@@ -16,9 +16,7 @@ function App() {
   const forecastDays = 7; // api support: 1, 3, 7 (default), 14, 16
 
   const [currentCity, setCurrentCity] = useState("");
-  // const [weatherData, setWeatherData] = useState({});
   const [rowHeader, setRowHeader] = useState("");
-  // const [rowData, setRowData] = useState("");
   const [options, setOptions] = useState({});
 
   const weatherData = useRef(null);
@@ -69,6 +67,7 @@ function App() {
       setCurrentCity("Toronto");
     }
 
+    // chart resize
     window.addEventListener('resize', function() {
       chartRef.current?.resize();
     });
@@ -100,7 +99,6 @@ function App() {
 
         let header = [],
           headerLabel = [],
-          // body = [],
           daysMin = [],
           daysMax = [],
           daysMinLabel = [],
@@ -129,14 +127,10 @@ function App() {
             <div className="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
             <div className="temp">{dayMin}{tmpUnit}<span> - </span>{dayMax}{tmpUnit}</div>
           </th>);
-
-          // let bodycell = {strTemp};
-          // body.push(bodycell);
         }
-
         setRowHeader(header);
-        // setRowData(body);
 
+        // bar chart options
         let dataOptions = {
           grid: {
             left: '0',
@@ -227,8 +221,8 @@ function App() {
           ]
         };
 
+        // save a copy for reuse
         weekOptions.current = dataOptions;
-        // bar chart options
         setOptions(dataOptions);
       }
     })
@@ -253,11 +247,14 @@ function App() {
     let dayOptions = {};
 
     if (!cell.classList.contains('selected')) {
+
+      // highlight selected cell
       for (let sibling of cell.parentNode.children){
         sibling.classList.remove('selected');
       }
       cell.classList.add('selected');
 
+      // extract hourly data of specific day
       let startIdx = i * 24,
         endIdx = (i + 1) * 24;
 
