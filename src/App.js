@@ -1,7 +1,7 @@
 import './App.css';
 import './fa/fontawesome.min.css';
 import './fa/solid.min.css';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import ReactEcharts from "echarts-for-react"; 
 
 function App() {
@@ -16,9 +16,13 @@ function App() {
   const forecastDays = 7; // api support: 1, 3, 7 (default), 14, 16
 
   const [currentCity, setCurrentCity] = useState("");
+  // const [weatherData, setWeatherData] = useState({});
   const [rowHeader, setRowHeader] = useState("");
   const [rowData, setRowData] = useState("");
   const [options, setOptions] = useState({});
+
+  const weatherData = useRef(null);
+  const weekOptions = useRef(null);
 
   const chartRef = useRef();
 
@@ -27,45 +31,35 @@ function App() {
   const dayOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const wcIcon = {
-    0: [<i class="fas fa-sun"></i>, 'Clear sky'],
+    0: [<i className="fas fa-sun"></i>, 'Clear sky'],
 
-    1: [<i class="fas fa-sun-cloud"></i>, 'Mainly clear'],
-    2: [<i class="fas fa-clouds-sun"></i>, 'Partly cloudy'],
-    3: [<i class="fas fa-clouds"></i>, 'Overcast'],
+    1: [<i className="fas fa-sun-cloud"></i>, 'Mainly clear'],
+    2: [<i className="fas fa-clouds-sun"></i>, 'Partly cloudy'],
+    3: [<i className="fas fa-clouds"></i>, 'Overcast'],
 
-    45: [<i class="fas fa-fog"></i>, 'Fog'],
-    48: [<i class="fas fa-fog"></i>, 'Fog'],
+    45: [<i className="fas fa-fog"></i>, 'Fog'],
+    48: [<i className="fas fa-fog"></i>, 'Fog'],
 
-    51: [<i class="fas fa-cloud-drizzle"></i>, 'Light drizzle'],
-    53: [<i class="fas fa-cloud-drizzle"></i>, 'Moderate drizzle'],
-    55: [<i class="fas fa-cloud-drizzle"></i>, 'Heavy drizzle'],
+    51: [<i className="fas fa-cloud-drizzle"></i>, 'Light drizzle'],
+    53: [<i className="fas fa-cloud-drizzle"></i>, 'Moderate drizzle'],
+    55: [<i className="fas fa-cloud-drizzle"></i>, 'Heavy drizzle'],
 
-    61: [<i class="fas fa-cloud-showers"></i>, 'Light rain'],
-    63: [<i class="fas fa-cloud-showers"></i>, 'Moderate rain'],
-    65: [<i class="fas fa-cloud-showers"></i>, 'Heavy rain'],
+    61: [<i className="fas fa-cloud-showers"></i>, 'Light rain'],
+    63: [<i className="fas fa-cloud-showers"></i>, 'Moderate rain'],
+    65: [<i className="fas fa-cloud-showers"></i>, 'Heavy rain'],
 
-    71: [<i class="fas fa-snowflake"></i>, 'Light snow'],
-    73: [<i class="fas fa-snowflake"></i>, 'Moderate snow'],
-    75: [<i class="fas fa-snowflake"></i>, 'Heavy snow'],
+    71: [<i className="fas fa-snowflake"></i>, 'Light snow'],
+    73: [<i className="fas fa-snowflake"></i>, 'Moderate snow'],
+    75: [<i className="fas fa-snowflake"></i>, 'Heavy snow'],
 
-    80: [<i class="fas fa-cloud-sun-rain"></i>, 'Light showers'],
-    81: [<i class="fas fa-cloud-sun-rain"></i>, 'Moderate showers'],
-    82: [<i class="fas fa-cloud-sun-rain"></i>, 'Heavy showers'],
+    80: [<i className="fas fa-cloud-sun-rain"></i>, 'Light showers'],
+    81: [<i className="fas fa-cloud-sun-rain"></i>, 'Moderate showers'],
+    82: [<i className="fas fa-cloud-sun-rain"></i>, 'Heavy showers'],
 
-    95: [<i class="fas fa-thunderstorm"></i>, 'Thunderstorm'],
-    96: [<i class="fas fa-thunderstorm"></i>, 'Thunderstorm'],
-    99: [<i class="fas fa-thunderstorm"></i>, 'Thunderstorm']
+    95: [<i className="fas fa-thunderstorm"></i>, 'Thunderstorm'],
+    96: [<i className="fas fa-thunderstorm"></i>, 'Thunderstorm'],
+    99: [<i className="fas fa-thunderstorm"></i>, 'Thunderstorm']
   }
-
-  const baseOptions = {
-    grid: {
-      left: '0',
-      right: '0',
-      bottom: '20px',
-      top: '20px',
-      containLabel: true
-    }    
-  };
 
   // load default city if set
   useEffect(() => {
@@ -90,12 +84,16 @@ function App() {
       '?latitude='  + cityGeo[currentCity].lat +
       '&longitude=' + cityGeo[currentCity].lng + 
       (forecastDays !== 7 ? '&forecast_days=' + forecastDays : '') +
-      '&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_mean&timezone=auto';
+      '&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_mean' +
+      '&hourly=temperature_2m,precipitation_probability' + 
+      '&timezone=auto';
 
     fetch(fetchURL).then(res => {
       return res.json();
     }).then(data => {
       if (!!data) {
+        weatherData.current = data;
+
         let header = [],
           headerLabel = [],
           body = [],
@@ -109,11 +107,11 @@ function App() {
         // tabular display
         for (let i = 0; i < forecastDays; i++) {
           let today = new Date(data.daily.time[i]);
-          header.push(<th key={i}>
+          header.push(<th key={i} onClick={e => dayClick(e, i)}>
             {i === 0 ? 'Today ' : (i === 1 ? 'Tomorrow ' : month[today.getMonth()].substring(0,3) + ' ' + today.getDate() + ' ')} 
              ({dayOfWeek[new Date(data.daily.time[i]).getDay()].substring(0, 3)})<br />
-            <div class="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
-            </th>);
+            <div className="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
+          </th>);
           headerLabel.push(data.daily.time[i]);
           let dayMin = data.daily.temperature_2m_min[i],
             dayMax = data.daily.temperature_2m_max[i];
@@ -131,24 +129,55 @@ function App() {
           let bodycell = <td key={i}>{strTemp}</td>;
           body.push(bodycell);
         }
+
         setRowHeader(header);
         setRowData(body);
 
-        // bars
-        setOptions({
+        let dataOptions = {
+          grid: {
+            left: '0',
+            right: '0',
+            bottom: '0',
+            top: '40px',
+            containLabel: true
+          },
           xAxis: {
+            data: headerLabel,
             show: false,
             type: 'category'
           },
-          yAxis: {
-            scale: true,
-            axisLine: {
-              show: false
+          yAxis: [
+            {
+              scale: true,
+              axisTick: {
+                show: false
+              },
+              axisLine: {
+                show: false
+              },
+              axisLabel: {
+                show: false
+              },
+              splitLine: {
+                show: true
+              }
             },
-            axisLabel: {
-              show: false
+            {
+              scale: true,
+              axisTick: {
+                show: false
+              },
+              axisLine: {
+                show: false
+              },
+              axisLabel: {
+                show: false
+              },
+              splitLine: {
+                show: false
+              }
             }
-          },
+          ],
           series: [
             {
               name: 'placeholder',
@@ -191,20 +220,23 @@ function App() {
               },
               data: daysMax
             }
-          ],
-          ... baseOptions
-        });
+          ]
+        };
+
+        weekOptions.current = dataOptions;
+        // bar chart options
+        setOptions(dataOptions);
       }
     })
   }
 
-  var setDefault = () => {
+  const setDefault = () => {
     if (!!ls) {
       ls.setItem('defaultCity', currentCity);
     }
   }
 
-  var cityOptions = Object.keys(cityGeo).map((city) => {
+  const cityOptions = Object.keys(cityGeo).map((city) => {
     return <option value={city} key={city}>{city}</option>
   })
 
@@ -212,23 +244,140 @@ function App() {
     if (e.target.value !== currentCity) setCurrentCity(e.target.value);
   }
 
+  const dayClick = (e, i) => {
+    let cell = e.target.closest('th');
+    let dayOptions = {};
+
+    if (!cell.classList.contains('selected')) {
+      for (let sibling of cell.parentNode.children){
+        sibling.classList.remove('selected');
+      }
+      cell.classList.add('selected');
+
+      let startIdx = i * 24,
+        endIdx = (i + 1) * 24;
+
+      let data = weatherData.current;
+      let cat = data.hourly.time.slice(startIdx, endIdx).map(c => c.substr(c.indexOf('T') + 1)),
+        temp = data.hourly.temperature_2m.slice(startIdx, endIdx),
+        prec = data.hourly.precipitation_probability.slice(startIdx, endIdx);
+
+      dayOptions = {
+        grid: {
+          left: '20',
+          right: '20',
+          bottom: '20',
+          top: '40',
+          containLabel: true
+        },
+        xAxis: {
+          show: true,
+          type: 'category',
+          name: 'Time',
+          nameLocation: 'middle',
+          nameGap: 25,
+          data: cat,
+          axisLabel: {
+            show: true
+          },
+          axisTick: {
+            alignWithLabel: true
+          }
+        },
+        yAxis: [
+          {
+            name: 'Temperature ' + tmpUnit,
+            type: 'value',
+            nameRotate: 90,
+            nameLocation: 'middle',
+            nameGap: 25,
+            scale: false,
+            axisLabel: {
+              show: true,
+              color: 'red'
+            },
+            axisLine: {
+              show: true
+            },
+            splitLine: {
+              show: false
+            }
+          },
+          {
+            name: 'Precipitation %',
+            type: 'value',
+            nameLocation: 'middle',
+            nameRotate: -90,
+            nameGap: 25,
+            min: 0,
+            max: 100,
+            axisLine: {
+              show: true
+            },
+            axisTick: {
+              show: true
+            },
+            axisLabel: {
+              show: true,
+              color: 'blue'
+            },
+            splitLine: {
+              show: false
+            }
+          }
+        ],
+        series: [
+          {
+            name: 'Temp',
+            type: 'line',
+            smooth: 0.3,
+            data: temp,
+            lineStyle: {
+              color: 'red'
+            },
+            itemStyle: {
+              opacity: '0'
+            }
+          },
+          {
+            name: 'Prec',
+            type: 'line',
+            smooth: 0.3,
+            yAxisIndex: 1,
+            data: prec,
+            lineStyle: {
+              color: 'blue'
+            },
+            itemStyle: {
+              opacity: '0'
+            }
+          }
+        ]
+      };
+      
+    } else {
+
+      // on deselect, revert to weekly bar graph
+      cell.classList.remove('selected');
+      dayOptions = weekOptions.current;
+    }
+
+    setOptions({ ... dayOptions });
+  }
+
   return (
     <div className="App">
       Select city: <select id="city" onChange={handleCityChange} value={currentCity}>
         {cityOptions}
-      </select> [<a href="#" onClick={setDefault}>Set as default city</a>]
+      </select> [<a href="#" onClick={e => setDefault}>Set as default city</a>]
       <h2>7 day forecast for {currentCity}</h2>
-      <table>
+      <table className='flex'>
         <thead>
           <tr>{rowHeader}</tr>
         </thead>
         <tbody>
           {/* <tr>{rowData}</tr> */}
-          <tr>
-            <td colSpan={forecastDays}>
-              <ReactEcharts ref={chartRef} option={options} style={{ width: '100%', height: '400px' }} />
-            </td>
-          </tr>
+          <tr><td colSpan={forecastDays}><ReactEcharts ref={chartRef} option={options} style={{ width: '100%', height: '400px' }} /></td></tr>
         </tbody>
       </table>
     </div>
