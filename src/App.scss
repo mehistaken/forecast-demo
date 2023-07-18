@@ -6,6 +6,15 @@
   max-width: 1280px;
 }
 
+.setDefault {
+  font-size: 14px;
+}
+
+sub {
+  display: block;
+  margin-bottom: 4px;
+}
+
 table {
   width: 100%;
   margin: 0 auto;
@@ -16,12 +25,14 @@ table {
     width: calc(100% / 7);
     border: 1px solid #16161d;
     padding: 4px 4px 8px;
+    background-color: rgba(255,255,255,0.7);
   }
 
   th {
     .icon {
       position: relative;
       margin-top: 8px;
+      font-size: 16px;
       font-weight: 400;
     }
     
@@ -30,6 +41,10 @@ table {
       margin-bottom: 4px;
       font-size: 50px;
       color: #ccc;
+    }
+
+    .temp {
+      font-weight: 400;
     }
   }
 
@@ -56,7 +71,7 @@ table {
       transition: background-color 0.3s ease-out;
 
       &.selected {
-        background-color: #00ffff;
+        background-color: #99ffff;
         // color: #fff;
       }
     }
@@ -66,5 +81,94 @@ table {
     th {
       cursor: pointer;
     }
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .App {
+    padding: 1rem;
+  }
+
+  table {
+    th {
+      .day {
+        display: block;
+      }
+
+      .icon {
+        height: 100px;
+      }
+
+      .temp {
+        margin-top: 4px;
+
+        span {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  sub {
+    display: none;
+  }
+
+  table.flex {
+    thead {
+      tr {
+        flex-direction: column;
+      }
+    }
+    
+    tbody {
+      display: none;
+    }
+
+    th {
+      padding: 4px 8px 8px;
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: start;
+      pointer-events: none;;
+
+      &.selected {
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+
+      .label {
+        flex: 1 0 100%;
+        text-align: left;
+        grid-area: top;
+      }
+      .day {
+        display: initial;
+      }
+
+      .icon {
+        height: unset;
+        flex: 0 1 160px;
+      }
+
+      .temp {
+        flex: 1 0 calc(100% - 160px);
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-items: center;
+
+        span {
+          margin: 0 4px;
+          display: initial;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .setDefault {
+    display: block;
   }
 }

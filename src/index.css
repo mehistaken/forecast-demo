@@ -8,6 +8,7 @@
 }
 
 body {
+  height: 100vh;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -15,6 +16,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #16161d;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.2;
+  z-index: -1;
+  pointer-events: none;
+  transition: background-image 0.3s ease-out;
+}
+
+body[city="Toronto"]::before {
+  background-image: url('./toronto.jpg');
+  background-position: left center;
+}
+body[city="Ottawa"]::before {
+  background-image: url('./ottawa.jpg');
+  background-position: center;
+}
+body[city="Montreal"]::before {
+  background-image: url('./montreal.jpg');
+}
+body[city="Quebec city"]::before {
+  background-image: url('./quebec-city.jpg');
+  background-position: center top;
+}
+body[city="Vancouver"]::before {
+  background-image: url('./vancouver.jpg');
 }
 
 code {

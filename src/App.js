@@ -18,7 +18,7 @@ function App() {
   const [currentCity, setCurrentCity] = useState("");
   // const [weatherData, setWeatherData] = useState({});
   const [rowHeader, setRowHeader] = useState("");
-  const [rowData, setRowData] = useState("");
+  // const [rowData, setRowData] = useState("");
   const [options, setOptions] = useState({});
 
   const weatherData = useRef(null);
@@ -76,7 +76,11 @@ function App() {
 
   // fetch data on city change
   useEffect(() => {
-    if (!!currentCity) fetchWeatherData();
+    if (!!currentCity) {
+      fetchWeatherData();
+      let body = document.querySelector('body');
+      body.setAttribute('city', currentCity);
+    }
   }, [currentCity]);
 
   var fetchWeatherData = () => {
@@ -96,7 +100,7 @@ function App() {
 
         let header = [],
           headerLabel = [],
-          body = [],
+          // body = [],
           daysMin = [],
           daysMax = [],
           daysMinLabel = [],
@@ -107,11 +111,7 @@ function App() {
         // tabular display
         for (let i = 0; i < forecastDays; i++) {
           let today = new Date(data.daily.time[i]);
-          header.push(<th key={i} onClick={e => dayClick(e, i)}>
-            {i === 0 ? 'Today ' : (i === 1 ? 'Tomorrow ' : month[today.getMonth()].substring(0,3) + ' ' + today.getDate() + ' ')} 
-             ({dayOfWeek[new Date(data.daily.time[i]).getDay()].substring(0, 3)})<br />
-            <div className="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
-          </th>);
+          
           headerLabel.push(data.daily.time[i]);
           let dayMin = data.daily.temperature_2m_min[i],
             dayMax = data.daily.temperature_2m_max[i];
@@ -124,14 +124,18 @@ function App() {
           daysMinLabel.push(dayMin);
           daysMaxLabel.push(dayMax);
 
-          let strTemp = `${dayMin}${tmpUnit} - ${dayMax}${tmpUnit}`;
+          header.push(<th key={i} onClick={e => dayClick(e, i)}>
+            <span className="label">{i === 0 ? 'Today ' :  month[today.getMonth()].substring(0,3) + ' ' + today.getDate() + ' '} <span className="day">({dayOfWeek[new Date(data.daily.time[i]).getDay()].substring(0, 3)})</span></span> 
+            <div className="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
+            <div className="temp">{dayMin}{tmpUnit}<span> - </span>{dayMax}{tmpUnit}</div>
+          </th>);
 
-          let bodycell = <td key={i}>{strTemp}</td>;
-          body.push(bodycell);
+          // let bodycell = {strTemp};
+          // body.push(bodycell);
         }
 
         setRowHeader(header);
-        setRowData(body);
+        // setRowData(body);
 
         let dataOptions = {
           grid: {
@@ -278,7 +282,21 @@ function App() {
           nameGap: 25,
           data: cat,
           axisLabel: {
-            show: true
+            show: true,
+            formatter: function(val, idx) {
+              if (i === 0) {
+                let h = new Date().getHours();
+                if (idx < h) return '{a|'+val+'}';
+                return val;
+              } else {
+                return val;
+              }
+            },
+            rich: {
+              a: {
+                color: '#ccc'
+              }
+            }
           },
           axisTick: {
             alignWithLabel: true
@@ -369,8 +387,9 @@ function App() {
     <div className="App">
       Select city: <select id="city" onChange={handleCityChange} value={currentCity}>
         {cityOptions}
-      </select> [<a href="#" onClick={e => setDefault}>Set as default city</a>]
+      </select> <span className="setDefault">[<a href="#" onClick={e => setDefault}>Set as default city</a>]</span>
       <h2>7 day forecast for {currentCity}</h2>
+      <sub>Click on each day for more details</sub>
       <table className='flex'>
         <thead>
           <tr>{rowHeader}</tr>

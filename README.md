@@ -17,3 +17,13 @@ Note: any API is fine
 This is a free form exercise for the candidates to demonstrate their abilities and thought process. This only needs to work locally for this demo, and any tech/frameworks can be used. These choices would be the focus of the discussion in the interview. Optional ideas to make this stand out more:
 - Experiment with other types of weather data (like precipitation) and other ways of visualizing it, focusing on user experience
 - Experiment with ways to make the UI more attractive (e.g. animation, responsiveness)
+
+
+## further development ideas
+- visual
+  - live webcam (as background)
+  - map view of cities (radar images?)
+  - for day view, make line chart continuous throughout and zoom to specific section on day change
+- functional
+  - customizable data (show/hide different stats)
+  - collect data on how often users click on individual day details (which ones? next day, coming weekend, etc) and optimize fetch query
