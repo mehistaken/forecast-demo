@@ -26,6 +26,7 @@ This is a free form exercise for the candidates to demonstrate their abilities a
 - for day view, make line chart continuous throughout and zoom to specific section on day change
 
 **functional**
+- use location service/ip geolocation to determine closest city
 - show more forecast days (if available)
 - customizable data (show/hide different stats)
 - add sunrise/sunset time to day view
