@@ -126,7 +126,7 @@ function App() {
           daysMaxLabel.push(dayMax);
 
           header.push(<th key={i} onClick={e => dayClick(e, i)}>
-            <span className="label">{i === 0 ? 'Today ' :  month[today.getMonth()].substring(0,3) + ' ' + today.getDate() + ' '} <span className="day">({dayOfWeek[new Date(data.daily.time[i]).getDay()].substring(0, 3)})</span></span> 
+            <span className="label">{i === 0 ? 'Today ' :  month[today.getMonth()].substring(0,3) + ' ' + (today.getDate() + 1) + ' '} <span className="day">({dayOfWeek[today.getDay()].substring(0, 3)})</span></span> 
             <div className="icon">{wcIcon[data.daily.weathercode[i]][0]}<br />{wcIcon[data.daily.weathercode[i]][1]}</div>
             <div className="temp">{dayMin}{tmpUnit}<span> - </span>{dayMax}{tmpUnit}</div>
           </th>);
